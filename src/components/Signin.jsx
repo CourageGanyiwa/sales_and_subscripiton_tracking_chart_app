@@ -2,29 +2,26 @@ import { useAuth } from "../context/AuthContext";
 import { useActionState } from "react";
 
 export default function Signin() {
-  const { session } = useAuth();
+  const { signInUser } = useAuth();
   const [error, submitAction, isPending] = useActionState(
-    (previousState, formData) => {
+    async (previousState, formData) => {
       const email = formData.get("email");
       const password = formData.get("password");
 
-      try {
-        //const { success, data, error: signInError } = await;
+      const {
+        success,
+        data,
+        error: signInError,
+      } = await signInUser(email, password);
 
-        if (signInError) return new Error(signInError);
+      if (signInError) return new Error(signInError);
 
-        if (success && data?.session) return null;
+      if (success && data?.session) return null;
 
-        return null;
-      } catch (error) {
-        console.error("Sign inn error ", error.message);
-        return new Error("Unexpected error occured, please try again later");
-      }
+      return null;
     },
     null
   );
-
-  console.log(session);
 
   return (
     <>
