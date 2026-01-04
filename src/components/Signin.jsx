@@ -1,7 +1,28 @@
 import { useAuth } from "../context/AuthContext";
+import { useActionState } from "react";
 
 export default function Signin() {
   const { session } = useAuth();
+  const [error, submitAction, isPending] = useActionState(
+    (previousState, formData) => {
+      const email = formData.get("email");
+      const password = formData.get("password");
+
+      try {
+        //const { success, data, error: signInError } = await;
+
+        if (signInError) return new Error(signInError);
+
+        if (success && data?.session) return null;
+
+        return null;
+      } catch (error) {
+        console.error("Sign inn error ", error.message);
+        return new Error("Unexpected error occured, please try again later");
+      }
+    },
+    null
+  );
 
   console.log(session);
 
@@ -11,7 +32,7 @@ export default function Signin() {
         <h1 className="landing-header">Paper Like A Boss</h1>
         <div className="sign-form-container flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
           <form
-            //action=
+            action={submitAction}
             aria-label="Sign in form"
             aria-describedby="form-description"
             className="sm:mx-auto sm:w-full sm:max-w-sm"
@@ -37,9 +58,9 @@ export default function Signin() {
               placeholder=""
               required
               aria-required="true"
-              //aria-invalid=
-              //aria-describedby=
-              //disabled=
+              aria-invalid={error ? "true" : "false"}
+              aria-describedby={error ? "signin-error" : undefined}
+              disabled={isPending}
             />
 
             <label htmlFor="password">Password</label>
@@ -51,22 +72,24 @@ export default function Signin() {
               placeholder=""
               required
               aria-required="true"
-              //aria-invalid=
-              //aria-describedby=
-              //disabled=
+              aria-invalid={error ? "true" : "false"}
+              aria-describedby={error ? "signin-error" : undefined}
+              disabled={isPending}
             />
 
-            <button
-              type="submit"
-              className="form-button"
-              //className=
-              //aria-busy=
-            >
-              Sign In
-              {/*'Signing in...' when pending*/}
+            <button type="submit" className="form-button" aria-busy={isPending}>
+              {isPending ? "Signing in " : "Sign In"}
             </button>
 
-            {/* Error message */}
+            {error && (
+              <div
+                id="signin-error"
+                role="alert"
+                className="sign-form-error-message"
+              >
+                {error.message}
+              </div>
+            )}
           </form>
         </div>
       </div>
